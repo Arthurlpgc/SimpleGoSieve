@@ -90,17 +90,7 @@ func addIP(ip string) {
 }
 
 func readToConnect() {
-	devices := 1
-	ips := make([]string, devices)
-
-	time.Sleep(5 * time.Second)
-	for i := 0; i < devices; i++ {
-		ips[i] = "10.69.24." + strconv.Itoa(i + 1)
-	}
-	for _, ip := range ips {
-		addIP(ip)
-		fmt.Println("Ip added " + ip)
-	}
+	addIP("10.69.24.1")
 	fmt.Println("Ips added")
 	for {
 		<- known_ips_lock 

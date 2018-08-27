@@ -9,22 +9,6 @@ services:
     build: .
     networks:
       vpcbr:
-        ipv4_address: 10.69.24.2
-  client3:
-    build: .
-    networks:
-      vpcbr:
-        ipv4_address: 10.69.24.3
-  client4:
-    build: .
-    networks:
-      vpcbr:
-        ipv4_address: 10.69.24.4
-  client5:
-    build: .
-    networks:
-      vpcbr:
-        ipv4_address: 10.69.24.5
 
 
 networks:
