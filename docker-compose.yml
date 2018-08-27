@@ -1,0 +1,37 @@
+version: '3'
+services:
+  client1:
+    build: .
+    networks:
+      vpcbr:
+        ipv4_address: 10.69.24.1
+  client2:
+    build: .
+    networks:
+      vpcbr:
+        ipv4_address: 10.69.24.2
+  client3:
+    build: .
+    networks:
+      vpcbr:
+        ipv4_address: 10.69.24.3
+  client4:
+    build: .
+    networks:
+      vpcbr:
+        ipv4_address: 10.69.24.4
+  client5:
+    build: .
+    networks:
+      vpcbr:
+        ipv4_address: 10.69.24.5
+
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.69.0.0/16
+
+#docker build . --tag tcp1 && docker run -t -i -p 51234:8080 tcp1
