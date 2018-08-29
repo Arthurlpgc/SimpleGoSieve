@@ -1,4 +1,5 @@
 package main
+
 import (
 	"bufio"
 	cryptorand "crypto/rand"
@@ -13,8 +14,8 @@ import (
 )
 
 type Client struct {
-	conn net.Conn
-	status chan int
+	conn     net.Conn
+	status   chan int
 	msgQueue chan string
 }
 
@@ -22,11 +23,14 @@ var known_ips = make(map[string]Client)
 var known_ips_lock = make(chan int, 1)
 var uid = strconv.Itoa(rand.Int())
 var prot = "tcp"
+var start_time time.Time = time.Now()
+var started = false
+var counter = 0
 var primeSize int64 = 100
 
 func sendContinuosly(client Client) {
 	for {
-		msg := <- client.msgQueue
+		msg := <-client.msgQueue
 		_, err := client.conn.Write([]byte(msg))
 		if err != nil {
 			fmt.Println("sendContinuosly failed: ", err)
@@ -45,7 +49,20 @@ func readContinuosly(client Client) {
 		}
 		str = strings.Trim(str, "#")
 		if str[0] == 'M' {
-			fmt.Println(str[1:])
+			if !started {
+				start_time = time.Now()
+				started = true
+				counter = 0
+			}
+			counter++
+			if counter == 10000 {
+				duration := start_time.Sub(time.Now())
+				fmt.Println("Duration", duration)
+			}
+			if counter%100 == 0 {
+				fmt.Println(counter)
+			}
+			//fmt.Println(str[1:])
 		} else if str[0] == 'I' {
 			addIP(str[1:])
 		}
@@ -53,8 +70,8 @@ func readContinuosly(client Client) {
 }
 
 func handleConnection(conn net.Conn, ip string) {
-	ip = strings.Split(ip,":")[0]
-	<- known_ips_lock 
+	ip = strings.Split(ip, ":")[0]
+	<-known_ips_lock
 	known_ips[ip] = Client{conn: conn, status: make(chan int), msgQueue: make(chan string, 1000)}
 	known_ips_lock <- 1
 	client := known_ips[ip]
@@ -63,9 +80,9 @@ func handleConnection(conn net.Conn, ip string) {
 }
 
 func w84c() {
-    ln, err := net.Listen(prot, ":8080")
+	ln, err := net.Listen(prot, ":8080")
 	if err != nil {
-		fmt.Print("Error on listenning: ") 
+		fmt.Print("Error on listenning: ")
 		fmt.Println(err)
 		return
 	}
@@ -76,7 +93,7 @@ func w84c() {
 		}
 		ip := conn.RemoteAddr().String()
 		go handleConnection(conn, ip)
-	}   
+	}
 }
 
 func addIP(ip string) {
@@ -84,14 +101,14 @@ func addIP(ip string) {
 		fmt.Println(ip + " Self")
 		return
 	}
-	_, ok := known_ips[ip] 
+	_, ok := known_ips[ip]
 	if ok {
 		fmt.Println(ip + " Known")
 		return
 	}
-	conn, err := net.Dial(prot, ip + ":8080")
+	conn, err := net.Dial(prot, ip+":8080")
 	if err != nil {
-		fmt.Println(ip + " Conn Error", err)
+		fmt.Println(ip+" Conn Error", err)
 		return
 	}
 	go handleConnection(conn, ip)
@@ -132,18 +149,18 @@ func readToConnect() {
 	fmt.Println("Ips added")
 	for {
 		msg := "MFrom " + uid + "\tPrime " + getPrime().String() + "#"
-		<- known_ips_lock 
+		<-known_ips_lock
 		for _, value := range known_ips {
 			value.msgQueue <- msg
 		}
 		known_ips_lock <- 1
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(1 * time.Nanosecond)
 	}
 }
 
 func ipSyncer() {
 	for {
-		<- known_ips_lock 
+		<-known_ips_lock
 		for _, value := range known_ips {
 			for key, _ := range known_ips {
 				value.msgQueue <- "I" + key + "#"
@@ -155,18 +172,18 @@ func ipSyncer() {
 }
 
 func idCheck(ip string) bool {
-	conn, err := net.Dial(prot, ip + ":8081")
-	for i := 0 ; i < 10 && err != nil; i++ {
-		conn, err = net.Dial(prot, ip + ":8081")
+	conn, err := net.Dial(prot, ip+":8081")
+	for i := 0; i < 10 && err != nil; i++ {
+		conn, err = net.Dial(prot, ip+":8081")
 		time.Sleep(1 * time.Second)
 	}
 
 	if err != nil {
 		return true
 	}
-	id := make([]byte, 100) 
+	id := make([]byte, 100)
 	conn.Read(id)
-	return strings.Trim(string(id), string(id)[99:])== uid
+	return strings.Trim(string(id), string(id)[99:]) == uid
 }
 
 func idChecker() {
@@ -188,7 +205,7 @@ func main() {
 	go readToConnect()
 	go ipSyncer()
 	for {
-		<- known_ips_lock 
+		<-known_ips_lock
 		for _, value := range known_ips {
 			fmt.Println(value.conn)
 		}
