@@ -43,7 +43,7 @@ func w84c() {
 	}
 	for {
 		buf := make([]byte, 1024)
-		n, _, err := pc.ReadFromUDP(buf)
+		_, _, err := pc.ReadFromUDP(buf)
 		if err != nil {
 			continue
 		}
@@ -57,9 +57,8 @@ func w84c() {
 			if counter == 10000 {
 				duration := start_time.Sub(time.Now())
 				fmt.Println("Duration", duration)
-			}
-			if counter%100 == 0 {
-				fmt.Println(counter, n)
+				counter = 0
+				started = false
 			}
 			//fmt.Println(string(buf[1:(n - 1)]))
 		} else if buf[0] == 'I' {
@@ -89,13 +88,7 @@ func isPrime(x *big.Int) bool {
 }
 
 func getPrime() *big.Int {
-	for i := 10000; i > 0; i-- {
-		testNumber := getNumber(primeSize)
-		if isPrime(testNumber) {
-			return testNumber
-		}
-	}
-	return big.NewInt(2)
+	return getNumber(primeSize)
 }
 
 func readToConnect() {
@@ -125,14 +118,8 @@ func main() {
 	fmt.Println("Launch" + uid)
 	go w84c()
 	go readToConnect()
-	go ipSyncer()
 	go sendContinuosly()
 	for {
-		<-known_ips_lock
-		for _, value := range known_ips {
-			fmt.Println(value)
-		}
-		known_ips_lock <- 1
 		time.Sleep(2 * time.Second)
 	}
 }

@@ -58,9 +58,8 @@ func readContinuosly(client Client) {
 			if counter == 10000 {
 				duration := start_time.Sub(time.Now())
 				fmt.Println("Duration", duration)
-			}
-			if counter%100 == 0 {
-				fmt.Println(counter)
+				counter = 0
+				started = false
 			}
 			//fmt.Println(str[1:])
 		} else if str[0] == 'I' {
@@ -135,13 +134,7 @@ func isPrime(x *big.Int) bool {
 }
 
 func getPrime() *big.Int {
-	for i := 10000; i > 0; i-- {
-		testNumber := getNumber(primeSize)
-		if isPrime(testNumber) {
-			return testNumber
-		}
-	}
-	return big.NewInt(2)
+	return getNumber(primeSize)
 }
 
 func readToConnect() {
@@ -203,13 +196,7 @@ func main() {
 	go idChecker()
 	go w84c()
 	go readToConnect()
-	go ipSyncer()
 	for {
-		<-known_ips_lock
-		for _, value := range known_ips {
-			fmt.Println(value.conn)
-		}
-		known_ips_lock <- 1
 		time.Sleep(2 * time.Second)
 	}
 }
