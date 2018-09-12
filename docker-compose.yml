@@ -9,6 +9,10 @@ services:
     build: .
     networks:
       vpcbr:
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      vpcbr:
 
 
 networks:
