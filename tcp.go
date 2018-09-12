@@ -10,6 +10,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"os"
 	"time"
 	"math"
 )
@@ -28,6 +29,7 @@ var start_time time.Time = time.Now()
 var started = false
 var counter = 0
 var primeSize int64 = 100
+var limitCounter, _ = strconv.Atoi(os.Getenv("limit"))
 
 var size int = 0
 var times [100]float64
@@ -59,7 +61,7 @@ func readContinuosly(client Client) {
 				counter = 0
 			}
 			counter++
-			if counter == 1000 {
+			if counter == limitCounter {
 				duration := start_time.Sub(time.Now())
 				times[size] = (float64(duration / time.Millisecond))
 				size++

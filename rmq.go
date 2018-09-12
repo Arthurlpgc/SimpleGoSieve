@@ -19,6 +19,7 @@ var counter = 0
 var primeSize int64 = 100
 var size int = 0
 var times [100]float64
+var limitCounter, _ = strconv.Atoi(os.Getenv("limit"))
 
 func w84c() {
 	conn, _ := amqp.Dial("amqp://rabbitmq:5672/")
@@ -51,7 +52,7 @@ func w84c() {
 				counter = 0
 			}
 			counter++
-			if counter == 10000 {
+			if counter == limitCounter {
 				duration := start_time.Sub(time.Now())
 				times[size] = (float64(duration / time.Millisecond))
 				size++
