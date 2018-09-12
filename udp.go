@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"math/rand"
 	"net"
+	"math"
 	"strconv"
 	"time"
 )
@@ -19,6 +20,9 @@ var start_time time.Time = time.Now()
 var started = false
 var counter = 0
 var primeSize int64 = 100
+
+var size int = 0
+var times [100]float64
 
 func sendContinuosly() {
 	for {
@@ -54,8 +58,12 @@ func w84c() {
 				counter = 0
 			}
 			counter++
-			if counter == 10000 {
+			if counter == 1000 {
 				duration := start_time.Sub(time.Now())
+				times[size] = (float64(duration / time.Millisecond))
+				size++
+				calculos(size)
+		
 				fmt.Println("Duration", duration)
 				counter = 0
 				started = false
@@ -65,6 +73,28 @@ func w84c() {
 
 		}
 	}
+}
+
+func calculos(size int) {
+	if(size != 50) {
+		return;
+	}
+
+	mean := 0.0;
+	sd := 0.0;
+	for i := 0; i < size; i++ {
+		mean += times[i]
+		
+	}
+
+	mean = mean/float64(size)
+	
+	for i := 0; i < size; i++ {
+		sd += math.Pow(times[i] - mean, 2)
+	}
+	
+	fmt.Println("MEAN", mean, "SD", math.Sqrt(sd/float64(size)))
+
 }
 
 func getNumber(expo int64) *big.Int {
