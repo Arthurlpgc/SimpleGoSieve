@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 	"github.com/streadway/amqp"
@@ -22,7 +23,7 @@ func w84c() {
 	ch, _ := conn.Channel()
 	defer ch.Close()
 	q, _ := ch.QueueDeclare(
-		"messages", // name
+		os.Getenv("receivequeue"), // name
 		false,   // durable
 		false,   // delete when unused
 		false,   // exclusive
@@ -91,7 +92,7 @@ func readToConnect() {
 	ch, _ := conn.Channel()
 	defer ch.Close()
 	q, _ := ch.QueueDeclare(
-		"messages", // name
+		os.Getenv("sendqueue"), // name
 		false,   // durable
 		false,   // delete when unused
 		false,   // exclusive

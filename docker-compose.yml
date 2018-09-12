@@ -2,11 +2,17 @@ version: '3'
 services:
   client1:
     build: .
+    environment:
+    - sendqueue=ch2
+    - receivequeue=ch1
     networks:
       vpcbr:
         ipv4_address: 10.69.24.1
   client2:
     build: .
+    environment:
+    - sendqueue=ch1
+    - receivequeue=ch2
     networks:
       vpcbr:
   rabbitmq:
