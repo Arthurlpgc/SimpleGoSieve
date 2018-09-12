@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"math"
 )
 
 type Client struct {
@@ -27,6 +28,9 @@ var start_time time.Time = time.Now()
 var started = false
 var counter = 0
 var primeSize int64 = 100
+
+var size int = 0
+var times [100]float64
 
 func sendContinuosly(client Client) {
 	for {
@@ -55,8 +59,12 @@ func readContinuosly(client Client) {
 				counter = 0
 			}
 			counter++
-			if counter == 10000 {
+			if counter == 1000 {
 				duration := start_time.Sub(time.Now())
+				times[size] = (float64(duration / time.Millisecond))
+				size++
+				calculos(size)
+		
 				fmt.Println("Duration", duration)
 				counter = 0
 				started = false
@@ -66,6 +74,28 @@ func readContinuosly(client Client) {
 			addIP(str[1:])
 		}
 	}
+}
+
+func calculos(size int) {
+	if(size != 50) {
+		return;
+	}
+
+	mean := 0.0;
+	sd := 0.0;
+	for i := 0; i < size; i++ {
+		mean += times[i]
+		
+	}
+
+	mean = mean/float64(size)
+	
+	for i := 0; i < size; i++ {
+		sd += math.Pow(times[i] - mean, 2)
+	}
+	
+	fmt.Println("MEAN", mean, "SD", math.Sqrt(sd/float64(size)))
+
 }
 
 func handleConnection(conn net.Conn, ip string) {
